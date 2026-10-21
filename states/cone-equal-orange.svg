@@ -1,0 +1,75 @@
+<svg viewBox="0 0 240 300" width="240" height="300" data-level="2" role="img" aria-labelledby="coneTitle coneDesc" xmlns="http://www.w3.org/2000/svg">
+  <title id="coneTitle">Alert severity cone</title>
+  <desc id="coneDesc">A glossy three-tier traffic cone. The selected severity colors the matching tier and the tiers below it.</desc>
+  <defs>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d92a33"/><stop offset="0.18" stop-color="#ee4650"/><stop offset="0.4" stop-color="#d4202b"/><stop offset="0.75" stop-color="#a8141d"/><stop offset="1" stop-color="#7d0e16"/>
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffa63a"/><stop offset="0.2" stop-color="#ffa328"/><stop offset="0.5" stop-color="#ff8e0f"/><stop offset="0.8" stop-color="#f77a0a"/><stop offset="1" stop-color="#d95e08"/>
+    </linearGradient>
+    <linearGradient id="yellowGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f2c700"/><stop offset="0.2" stop-color="#ffe238"/><stop offset="0.45" stop-color="#ffd40a"/><stop offset="0.8" stop-color="#e8b800"/><stop offset="1" stop-color="#b88f00"/>
+    </linearGradient>
+    <linearGradient id="baseGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#617285"/><stop offset=".22" stop-color="#344556"/><stop offset="1" stop-color="#111b26"/>
+    </linearGradient>
+    <linearGradient id="collarGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2d3846"/><stop offset=".3" stop-color="#5a6b7e"/>
+      <stop offset=".6" stop-color="#2c3745"/><stop offset="1" stop-color="#1a2330"/>
+    </linearGradient>
+    <linearGradient id="slabTopGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a3541"/><stop offset="1" stop-color="#3b4857"/>
+    </linearGradient>
+    <linearGradient id="slabFrontGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b3644"/><stop offset="1" stop-color="#141c26"/>
+    </linearGradient>
+    <filter id="softShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+  </defs>
+  <style>
+    .cone-tier { transition: filter .2s ease, opacity .2s ease; }
+    #tier-red { --glow: #ff3b3b99; }
+    #tier-orange { --glow: #ff8a1ecc; }
+    #tier-yellow { --glow: #ffd60a99; }
+    /* data-level on the root: 0 nothing, 1 yellow, 2 orange, 3 red */
+    svg[data-level="0"] .cone-tier,
+    svg[data-level="1"] #tier-orange, svg[data-level="1"] #tier-red,
+    svg[data-level="2"] #tier-red { filter: grayscale(1); opacity: .55; }
+    svg[data-level="1"] #tier-yellow,
+    svg[data-level="2"] #tier-orange,
+    svg[data-level="3"] #tier-red { filter: drop-shadow(0 0 7px var(--glow)); }
+    @media (prefers-reduced-motion: reduce) { .cone-tier { transition: none; } }
+  </style>
+  <rect id="bg" width="240" height="300" rx="14" fill="#0b1119"/>
+  <ellipse cx="120" cy="288" rx="100" ry="6" fill="#000" opacity=".55" filter="url(#softShadow)"/>
+  <!-- Tier boundaries chosen so the three colours cover roughly equal area on one straight silhouette. -->
+  <g id="tier-red" class="cone-tier">
+    <path d="M102 37 Q103 29 111 29 L129 29 Q137 29 138 37 L163.04 126.5 Q120 140.7 76.96 126.5 Z" fill="url(#redGrad)" stroke="#ff8b87" stroke-opacity=".55" stroke-width="1.4"/>
+    <path d="M109 35 L116 33 L87 122 L80 123 Z" fill="#fff" opacity=".14"/>
+    <path d="M102 37 Q120 42 138 37" fill="none" stroke="#ffc0b7" stroke-opacity=".65"/>
+    <path d="M76.96 126.5 Q120 140.7 163.04 126.5" fill="none" stroke="#48161d" stroke-width="3"/>
+  </g>
+  <g id="tier-orange" class="cone-tier">
+    <path d="M76.12 129.5 Q120 144 163.88 129.5 L178.99 183.5 Q120 203 61.01 183.5 Z" fill="url(#orangeGrad)" stroke="#ffd08a" stroke-opacity=".6" stroke-width="1.4"/>
+    <path d="M82 134 L90 137 L77 182 L69 180 Z" fill="#fff" opacity=".13"/>
+    <path d="M76.12 129.5 Q120 144 163.88 129.5" fill="none" stroke="#ffe0b2" stroke-opacity=".65"/>
+    <path d="M61.01 183.5 Q120 203 178.99 183.5" fill="none" stroke="#54290f" stroke-width="3"/>
+  </g>
+  <g id="tier-yellow" class="cone-tier">
+    <path d="M60.17 186.5 Q120 206.2 179.83 186.5 L192 230 Q120 252 48 230 Z" fill="url(#yellowGrad)" stroke="#fff09a" stroke-opacity=".55" stroke-width="1.4"/>
+    <path d="M65 192 L74 195 L60 233 L51 230 Z" fill="#fff" opacity=".13"/>
+    <path d="M60.17 186.5 Q120 206.2 179.83 186.5" fill="none" stroke="#fff7b0" stroke-opacity=".65"/>
+    <path d="M48 230 Q120 252 192 230" fill="none" stroke="#4b3e10" stroke-width="3"/>
+  </g>
+  <g id="cone-base">
+    <!-- Flat rounded slab: front face, then the visible top plane. -->
+    <path d="M9 271 L231 271 L231 282 Q231 289 224 289 L16 289 Q9 289 9 282 Z" fill="url(#slabFrontGrad)" stroke="#3d4b5b" stroke-width="1"/>
+    <path d="M27 242 L213 242 Q219 242 221 247 L230 266 Q233 271 226 271 L14 271 Q7 271 10 266 L19 247 Q21 242 27 242 Z" fill="url(#slabTopGrad)" stroke="#667789" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M12 271 L228 271" fill="none" stroke="#a9b8c8" stroke-opacity=".5" stroke-width="1.3" stroke-linecap="round"/>
+    <!-- Tapered collar: top edge matches the yellow tier's bottom curve. -->
+    <path d="M48 230 L39 255 A81 10 0 0 0 201 255 L192 230 Q120 252 48 230 Z" fill="url(#collarGrad)" stroke="#7f90a3" stroke-opacity=".6" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M39 255 A81 10 0 0 0 201 255" fill="none" stroke="#a9b8c8" stroke-opacity=".3"/>
+  </g>
+</svg>

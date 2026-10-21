@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alert severity cone</title>
+<meta name="description" content="A three-tier traffic cone that visualises alert severity. The selected level lights its tier and every tier below it. Available as standalone SVGs and an interactive demo.">
+<style>
+  :root {
+    --bg: #0d1117;
+    --fg: #e6edf3;
+    --muted: #8b949e;
+    --link: #4493f5;
+    --border: #30363d;
+    --surface: #161b22;
+    --surface-hover: #1f242c;
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
+
+  .wrap { width: 100%; max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header */
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .site-header .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    min-height: 60px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--fg);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .brand:hover { text-decoration: none; color: var(--fg); }
+  .brand svg { flex: none; color: var(--muted); }
+  .brand:hover svg { color: var(--fg); }
+  .header-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    font-size: .875rem;
+  }
+  .header-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+  }
+  .header-links a:hover { color: var(--link); }
+  .header-links svg { flex: none; }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Main */
+  main { flex: 1 0 auto; }
+  .intro { padding: 40px 0 8px; }
+  h1 {
+    margin: 0 0 10px;
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem);
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -.01em;
+  }
+  .lead {
+    margin: 0;
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: 1rem;
+  }
+
+  .demo { padding: 28px 0 8px; }
+  .demo-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    padding: 28px 20px 30px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+  .cone {
+    width: min(240px, 70vw);
+    min-height: 300px;
+    filter: drop-shadow(0 14px 14px #0006);
+  }
+  .cone svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .cone #bg { display: none; } /* the SVG's own backdrop is only for standalone use */
+
+  .control { width: min(340px, 86vw); display: grid; gap: 6px; }
+  .control-top { display: flex; justify-content: space-between; align-items: baseline; }
+  label { font-weight: 650; }
+  output { color: var(--muted); font-size: .88rem; font-variant-numeric: tabular-nums; }
+  input[type="range"] { width: 100%; margin: 0; accent-color: #6aa8ff; cursor: pointer; }
+  .ticks { display: flex; color: var(--muted); font-size: .78rem; }
+  .ticks span { flex: 1; text-align: center; }
+  .ticks span:first-child { text-align: left; }
+  .ticks span:last-child { text-align: right; }
+
+  fieldset { border: 0; margin: 0; padding: 0; display: flex; gap: 18px; justify-content: center; color: var(--muted); }
+  fieldset label { font-weight: 500; cursor: pointer; }
+  fieldset input { accent-color: #6aa8ff; }
+  #error { color: #ff9b94; max-width: 340px; text-align: center; margin: 0; }
+  #error code {
+    padding: .15em .35em;
+    border-radius: 6px;
+    background: #ffffff14;
+    font-size: .9em;
+  }
+
+  /* Docs */
+  .section { padding: 32px 0 0; }
+  h2 {
+    margin: 0 0 12px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .section ul { margin: 0; padding-left: 1.25em; color: var(--muted); }
+  .section li { margin: 6px 0; }
+  .section li strong { color: var(--fg); font-weight: 600; }
+  pre {
+    overflow-x: auto; padding: 12px 14px; margin: 12px 0 0;
+    background: var(--panel, #161b22); border: 1px solid #30363d; border-radius: 6px;
+  }
+  pre code { font-size: .85rem; background: none; border: 0; padding: 0; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: .875em;
+    padding: .12em .35em;
+    border-radius: 6px;
+    background: #ffffff14;
+    overflow-wrap: anywhere;
+  }
+
+  /* Footer */
+  .site-footer {
+    flex: none;
+    margin-top: 48px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .8125rem;
+  }
+  .site-footer .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    justify-content: space-between;
+    padding-top: 20px;
+    padding-bottom: 24px;
+  }
+  .site-footer a { color: var(--muted); }
+  .site-footer a:hover { color: var(--link); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./">Alert severity cone</a>
+    <nav class="header-links" aria-label="Project links">
+      <a href="https://github.com/MrTomRod/severity-cone-js#readme">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 2.75h5.25A2.75 2.75 0 0 1 12 5.5v8.25H5A2 2 0 0 1 3 11.75V3.75a1 1 0 0 1 1-1Z"/>
+          <path d="M5 2.75v11"/>
+          <path d="M7.5 6h2.5M7.5 8.5h2.5"/>
+        </svg>
+        README
+      </a>
+      <a href="https://github.com/MrTomRod/severity-cone-js">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+        </svg>
+        View on GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section class="intro">
+      <h1>Alert severity cone</h1>
+      <p class="lead">
+        A three-tier traffic cone that visualises alert severity. The selected level
+        lights its tier and every tier below it.
+      </p>
+    </section>
+
+    <section class="demo" aria-labelledby="demoHeading">
+      <h2 id="demoHeading" class="visually-hidden">Interactive demo</h2>
+      <div class="demo-card">
+
+        <div class="cone" id="cone" role="img" aria-label="Alert severity cone"></div>
+        <p id="error" hidden>Couldn't load the cone SVG. Serve this folder over HTTP (e.g. <code>python3 -m http.server</code>) instead of opening the file directly.</p>
+
+        <fieldset>
+          <legend hidden>Cone style</legend>
+          <label><input type="radio" name="style" value="cone-equal.svg" checked> Equal areas</label>
+          <label><input type="radio" name="style" value="cone-classic.svg"> Classic</label>
+        </fieldset>
+
+        <div class="control">
+          <div class="control-top">
+            <label for="severity">Severity</label>
+            <output id="severityOutput" for="severity" aria-live="polite">Nothing</output>
+          </div>
+          <input id="severity" type="range" min="0" max="3" step="1" value="0"
+                 list="severityStops" aria-describedby="severityHint">
+          <datalist id="severityStops">
+            <option value="0" label="Nothing"></option>
+            <option value="1" label="Yellow"></option>
+            <option value="2" label="Orange"></option>
+            <option value="3" label="Red"></option>
+          </datalist>
+          <div class="ticks" aria-hidden="true">
+            <span>Nothing</span><span>Yellow</span><span>Orange</span><span>Red</span>
+          </div>
+          <p id="severityHint" hidden>Colors the cone tier for the selected severity and every tier below it.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="howHeading">
+      <h2 id="howHeading">How to use</h2>
+      <ul>
+        <li>Embed a cone in a README: <code>&lt;img src="cone-equal.svg"&gt;</code></li>
+        <li>Levels: <strong>0</strong> nothing, <strong>1</strong> yellow, <strong>2</strong> orange, <strong>3</strong> red.</li>
+      </ul>
+      <p>To set the level from JavaScript, inline the SVG and change its <code>data-level</code>:</p>
+<pre><code>&lt;div id="cone"&gt;&lt;!-- contents of cone-equal.svg --&gt;&lt;/div&gt;
+&lt;script&gt;
+  document.querySelector('#cone svg').dataset.level = 2; // 2 orange
+&lt;/script&gt;</code></pre>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>MIT licensed. © 2026 Thomas Roder.</span>
+    <span>
+      <a href="https://github.com/MrTomRod/severity-cone-js/blob/master/LICENSE">License</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/MrTomRod/severity-cone-js">GitHub</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const stops = ["Nothing", "Yellow", "Orange", "Red"];
+  const input = document.getElementById("severity");
+  const output = document.getElementById("severityOutput");
+  const host = document.getElementById("cone");
+  const error = document.getElementById("error");
+  const cache = new Map();
+
+  // The cone lives in its own SVG file; it is injected inline so the page can drive
+  // it through the data-level attribute (0 nothing, 1 yellow, 2 orange, 3 red).
+  async function loadCone(url) {
+    try {
+      if (!cache.has(url)) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        cache.set(url, await res.text());
+      }
+      host.innerHTML = cache.get(url);
+      error.hidden = true;
+      render();
+    } catch {
+      error.hidden = false;
+    }
+  }
+
+  function render() {
+    const level = Number(input.value);
+    const svg = host.querySelector("svg");
+    if (svg) svg.dataset.level = level;
+    const text = stops[level];
+    output.textContent = text;
+    input.setAttribute("aria-valuetext", text);
+  }
+
+  // Autoplay: step through the states until the visitor touches the slider.
+  // Goes up 0 → 3, then back down 3 → 0, and repeats.
+  const STEP_MS = 600;
+  const last = stops.length - 1;
+  let timer = null;
+  let direction = 1;
+  function stopAutoplay() {
+    clearInterval(timer);
+    timer = null;
+  }
+  function startAutoplay() {
+    input.value = 0;
+    direction = 1;
+    render();
+    timer = setInterval(() => {
+      let level = Number(input.value) + direction;
+      if (level >= last) { level = last; direction = -1; }
+      else if (level <= 0) { level = 0; direction = 1; }
+      input.value = level;
+      render();
+    }, STEP_MS);
+  }
+
+  input.addEventListener("input", () => { stopAutoplay(); render(); });
+  input.addEventListener("pointerdown", stopAutoplay);
+  input.addEventListener("keydown", stopAutoplay);
+  document.querySelectorAll('input[name="style"]').forEach(radio =>
+    radio.addEventListener("change", () => {
+      stopAutoplay();
+      loadCone(radio.value).then(startAutoplay);
+    }));
+  loadCone(document.querySelector('input[name="style"]:checked').value).then(startAutoplay);
+})();
+</script>
+
+</body>
+</html>
